@@ -1,0 +1,61 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Para mais detalhes: https://www.prisma.io/docs/concepts/components/prisma-schema
+
+model Produto {
+  id Int @id @default(autoincrement())
+  nome String @db.VarChar(100)
+  preco Decimal @db.Decimal(12,2) // independe do fornecedor, talvez não seja o mais correto, mas é só um exemplo
+  createdAt DateTime? @default(now())
+  updatedAt DateTime? @updatedAt
+
+  // Associação com Categoria - Produto é de uma única Categoria (N -> 1)
+  categoriaId Int
+  categoria Categoria @relation(fields: [categoriaId], references: [id])
+
+  // Produtos tem vários fornecedotes (N - N)
+  fornecedores Fornecedor[]
+
+  @@map("podutos")
+}
+
+model Fornecedor{
+  id Int @id @default(autoincrement())
+  nome String @db.VarChar(100)
+  cnpj Decimal @unique
+  createdAt DateTime? @default(now())
+  updatedAt DateTime? @updatedAt
+
+  // Fornecedor fornece vários produtos (N - N)
+  produtos Produto[]
+
+  @@map("fornecedors")
+}
+
+model Categoria{
+  id Int @id @default(autoincrement())
+  nome String @db.VarChar(50)
+  
+  // Associação com Produtos - Categoria é associada a vários Produtos
+  produtos Produto[]
+
+  @@map("categorias")
+}
+
+model Usuario{
+  id Int @id @default(autoincrement())
+  email String @db.VarChar(100) @unique
+  senha String @db.VarChar(50)
+
+  @@map("usuarios")
+}
